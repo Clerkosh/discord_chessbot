@@ -337,7 +337,7 @@ client.on('message', message => {
                     setTimeout(() => {
                         const embedBoard = new Discord.MessageEmbed()
                             .setColor(botColor)
-                            .setTitle('Board settings')
+                            .setTitle('BOT settings')
                             .setURL(inviteLink)
                             .addFields(
                                 { name: '\u200B', value: "BOT color changed to: **" + botColor + "**" }
