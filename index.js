@@ -340,12 +340,19 @@ client.on('message', message => {
                             .setTitle('Board settings')
                             .setURL(inviteLink)
                             .addFields(
-                                { name: '\u200B', value: "Bot color changed to: **" + botColor + "**" }
+                                { name: '\u200B', value: "BOT color changed to: **" + botColor + "**" }
                             )
                         message.channel.send(embedBoard);
                     }, 200)
                 }else{
-
+                  const embedBoard = new Discord.MessageEmbed()
+                            .setColor(botColor)
+                            .setTitle('BOT settings')
+                            .setURL(inviteLink)
+                            .addFields(
+                                { name: '\u200B', value: "Current BOT color: **" + botColor + "**" }
+                            )
+                        message.channel.send(embedBoard);
                 }
                 break
             }
