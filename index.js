@@ -16,11 +16,9 @@ const Engine = require('node-uci').Engine;
 const ChessImageGenerator = require('chess-image-generator');
 const client = new Discord.Client();
 const inviteLink = process.env.INVITE_LINK
-const BASE_URL = process.env.BASE_URL
-const RESOURCES_URL = process.env.RESOURCES_URL
-//const CLIENT_TOKEN = process.env.CLIENT_TOKEN
-const STOCKFISH = process.env.STOCKFISH
-
+const BASE_URL = config.BASE_URL
+const RESOURCES_URL = config.RESOURCES_URL
+const STOCKFISH = config.STOCKFISH
 var prefix = config.PREFIX
 var botColor = config.BOT_COLOR
 var imageGenerator
@@ -90,6 +88,7 @@ function setBoardDefault() {
     imageGenerator.dark = colorsEnum.get('2').value
     imageGenerator.style = 'alpha'
 }
+
 client.login();
 client.on('ready', function (evt) {
     console.log('ready');
@@ -460,3 +459,10 @@ client.on('message', message => {
         message.channel.send(embedHelp);
     }
 });
+
+const http = require('http');
+const server = http.createServer((req, res) => {
+  res.writeHead(200);
+  res.end('ok');
+});
+server.listen(3000);

@@ -1,4 +1,7 @@
 {
 	"PREFIX": "=",
-    "BOT_COLOR" : "#0099ff"
+  "BOT_COLOR" : "#0099ff",
+  "BASE_URL" : "/home/runner/discordchessbot/",
+  "RESOURCES_URL" : "/home/runner/discordchessbot/resources/",
+  "STOCKFISH" : "/home/runner/discordchessbot/resources/stockfish.exe"
 }

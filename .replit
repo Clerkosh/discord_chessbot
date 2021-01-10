@@ -1,0 +1,2 @@
+language = "nodejs"
+run = "export PATH=\"/home/runner/discordchessbot/node_modules/n/versions/node/14.15.4/bin:$PATH\";npm start"
