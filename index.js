@@ -37,7 +37,11 @@ colorsEnum = new Enum({
     11: "#DC13C8",
     12: "#F1A430",
     13: "#B9581C",
-    14: "#EA4747"
+    14: "#EA4747",
+    "red": "#ff0000",
+    "blue": "#0099ff",
+    "green": "#00ff00",
+    "orange": "#ff9900"
 })
 function convertUCItoSAN(move, chess) {
     square = move.substr(0, 2)
@@ -88,7 +92,6 @@ function setBoardDefault() {
     imageGenerator.dark = colorsEnum.get('2').value
     imageGenerator.style = 'alpha'
 }
-
 client.login();
 client.on('ready', function (evt) {
     console.log('ready');
@@ -118,41 +121,81 @@ client.on('message', message => {
     else if (message.content.startsWith(prefix + 'chess')) {
         args = message.content.split(" ")
         username = args[1]
-        chessAPI.getPlayerStats(username)
+        avatar = ''
+        title = ''
+        rapid_last_rating = "0"
+        rapid_best_rating = "0"
+        bullet_last_rating = "0"
+        bullet_best_rating = "0"
+        blitz_last_rating = "0"
+        blitz_best_rating = "0"
+        daily_last_rating = "0"
+        daily_best_rating = "0"
+        puzzle_best = "0"
+        puzzle_total = "0"
+
+        chessAPI.getPlayer(username)
             .then(function (response) {
-                response.body.chess_rapid.last.date = new Date(response.body.chess_rapid.last.date * 1000).toGMTString()
-                response.body.chess_rapid.best.date = new Date(response.body.chess_rapid.best.date * 1000).toGMTString()
-                response.body.chess_bullet.last.date = new Date(response.body.chess_bullet.last.date * 1000).toGMTString()
-                response.body.chess_bullet.best.date = new Date(response.body.chess_bullet.best.date * 1000).toGMTString()
-                response.body.chess_blitz.last.date = new Date(response.body.chess_blitz.last.date * 1000).toGMTString()
-                response.body.chess_blitz.best.date = new Date(response.body.chess_blitz.best.date * 1000).toGMTString()
+                if (response.body.hasOwnProperty('avatar')) {
+                    avatar = response.body.avatar
+                }else avatar = 'https://betacssjs.chesscomfiles.com/bundles/web/images/noavatar_l.84a92436.gif'
+                if (response.body.hasOwnProperty('title'))
+                    title = response.body.title
+            })
+        setTimeout(() => {
+            chessAPI.getPlayerStats(username)
+                .then(function (response) {
 
-                rapid_last_rating = response.body.chess_rapid.last.rating
-                rapid_last_date = response.body.chess_rapid.last.date
-                rapid_best_rating = response.body.chess_rapid.best.rating
-                rapid_best_date = response.body.chess_rapid.best.date
-                bullet_last_rating = response.body.chess_bullet.last.rating
-                bullet_last_date = response.body.chess_bullet.last.date
-                bullet_best_rating = response.body.chess_bullet.best.rating
-                bullet_best_date = response.body.chess_bullet.best.date
-                blitz_last_rating = response.body.chess_blitz.last.rating
-                blitz_last_date = response.body.chess_blitz.last.date
-                blitz_best_rating = response.body.chess_blitz.best.rating
-                blitz_best_date = response.body.chess_blitz.best.date
-
-                message.channel.send('**' + username + ' stats:**\n**Rapid**:\ncurrent rating: **' + rapid_last_rating + '**\t\tdate: **' + rapid_last_date
-                    + "**\nbest rating: **" + rapid_best_rating + '**\t\tdate: **' + rapid_best_date + "**\t\tgame: <" + response.body.chess_rapid.best.game +
-                    '>\n**Bullet**:\ncurrent rating: **' + bullet_last_rating + '**\t\tdate: **' + bullet_last_date
-                    + "\n**best rating: **" + bullet_best_rating + '**\t\tdate: **' + bullet_best_date + "**\t\tgame: <" + response.body.chess_bullet.best.game +
-                    '>\n**Blitz**:\ncurrent rating: **' + blitz_last_rating + '**\t\tdate: **' + blitz_last_date
-                    + "\n**best rating: **" + blitz_best_rating + '**\t\tdate: **' + blitz_best_date + "**\t\tgame: <" + response.body.chess_blitz.best.game +
-                    ">\n**Puzzle Rush**:\nscore: **" + response.body.puzzle_rush.best.score + "**\t\ttotal attemts: **" + response.body.puzzle_rush.best.total_attempts +
-                    "**\n**FIDE**: **" + response.body.fide + "**");
-
-            }, function (err) {
-                console.error(err);
-                message.channel.send(err.message);
-            });
+                    if (response.body.hasOwnProperty('chess_rapid')) {
+                        if (response.body.chess_rapid.hasOwnProperty('last'))
+                            rapid_last_rating = response.body.chess_rapid.last.rating
+                        if (response.body.chess_rapid.hasOwnProperty('best'))
+                            rapid_best_rating = response.body.chess_rapid.best.rating
+                    }
+                    if (response.body.hasOwnProperty('chess_bullet')) {
+                        if (response.body.chess_bullet.hasOwnProperty('last'))
+                            bullet_last_rating = response.body.chess_bullet.last.rating
+                        if (response.body.chess_bullet.hasOwnProperty('best'))
+                            bullet_best_rating = response.body.chess_bullet.best.rating
+                    }
+                    if (response.body.hasOwnProperty('chess_blitz')) {
+                        if (response.body.chess_blitz.hasOwnProperty('last'))
+                            blitz_last_rating = response.body.chess_blitz.last.rating
+                        if (response.body.chess_blitz.hasOwnProperty('best'))
+                            blitz_best_rating = response.body.chess_blitz.best.rating
+                    }
+                    if (response.body.hasOwnProperty('chess_daily')) {
+                        if (response.body.chess_daily.hasOwnProperty('last'))
+                            daily_last_rating = response.body.chess_daily.last.rating
+                        if (response.body.chess_daily.hasOwnProperty('best'))
+                            daily_best_rating = response.body.chess_daily.best.rating
+                    }
+                    if (response.body.hasOwnProperty('puzzle_rush')) {
+                        if (response.body.puzzle_rush.hasOwnProperty('best')) {
+                            puzzle_best = response.body.puzzle_rush.best.score
+                            puzzle_total = response.body.puzzle_rush.best.total_attempts
+                        }
+                    }
+                    const embedPNG = new Discord.MessageEmbed()
+                        .setColor(botColor)
+                        .setTitle(title + ' ' + username + ' stats')
+                        .setThumbnail(avatar)
+                        .setURL('https://chess.com/member/' + username)
+                        .addFields(
+                            { name: '**Rapid**', value: 'current: **' + rapid_last_rating + '**\nbest: **' + rapid_best_rating + '**', inline: true },
+                            { name: '**Bullet**', value: 'current: **' + bullet_last_rating + '**\nbest: **' + bullet_best_rating + '**', inline: true },
+                            { name: '**Blitz**', value: 'current: **' + blitz_last_rating + '**\nbest: **' + blitz_best_rating + '**', inline: true },
+                            { name: '\u2800', value: '\u2800' },
+                            { name: '**Daily**', value: 'current: **' + daily_last_rating + '**\nbest: **' + daily_best_rating + '**', inline: true },
+                            { name: '**Puzzle Rush**', value: 'best: **' + puzzle_best + '**', inline: true },
+                            { name: '**FIDE**', value: '**' + response.body.fide + '**', inline: true }
+                        )
+                    message.channel.send(embedPNG)
+                }, 800)
+        }, function (err) {
+            console.error(err);
+            message.channel.send(err.message);
+        });
     } else if (message.content.startsWith(prefix + 'lichess ')) {
         String.prototype.minsToHHMMSS = function () {
             var minsNum = parseFloat(this / 60, 10);
@@ -172,16 +215,24 @@ client.on('message', message => {
             user = JSON.parse(user)
             playTime = user.playTime.total.toString().minsToHHMMSS()
             tvTime = user.playTime.tv.toString().minsToHHMMSS()
-            message.channel.send('**' + username + ' stats:**\n**Rapid**:\ncurrent rating: **' + user.perfs.rapid.rating + '**\t\tgames played: **' + user.perfs.rapid.games + '**\n' +
-                '**Ultra Bullet**:\ncurrent rating: **' + user.perfs.ultraBullet.rating + '**\t\tgames played: **' + user.perfs.ultraBullet.games + '**\n' +
-                '**Bullet**:\ncurrent rating: **' + user.perfs.bullet.rating + '**\t\tgames played: **' + user.perfs.bullet.games + '**\n' +
-                '**Blitz**:\ncurrent rating: **' + user.perfs.blitz.rating + '**\t\tgames played: **' + user.perfs.blitz.games + '**\n' +
-                '**Classical**:\ncurrent rating: **' + user.perfs.classical.rating + '**\t\tgames played: **' + user.perfs.classical.games + '**\n' +
-                '**Correspondence**:\ncurrent rating: **' + user.perfs.correspondence.rating + '**\t\tgames played: **' + user.perfs.correspondence.games + '**\n' +
-                '**Puzzle**:\ncurrent rating: **' + user.perfs.puzzle.rating + '**\t\t puzzles solved: **' + user.perfs.puzzle.games + '**\n' +
-                '**All games played: ' + user.count.all + '\t\twin: ' + user.count.win + '\t\tloss: ' + user.count.loss + '\t\ttime played: ' + playTime + '\t\ttime on lichess tv: ' + tvTime + '**'
-            )
-            //message.channel.send('**'+username+' stats:**\n')
+            const embedPNG = new Discord.MessageEmbed()
+                .setColor(botColor)
+                .setTitle(username + ' stats')
+                .setThumbnail('https://images.prismic.io/lichess/5cfd2630-2a8f-4fa9-8f78-04c2d9f0e5fe_lichess-box-1024.png?auto=compress')
+                .setURL('https://lichess.org/@/' + username)
+                .addFields(
+                    {name:"**Rapid**", value: user.perfs.rapid.rating, inline: true},
+                    {name:"**Ultra Bullet**", value: user.perfs.ultraBullet.rating, inline: true},
+                    {name:"**Bullet**", value: user.perfs.bullet.rating, inline: true},
+                    {name:"**Blitz**", value: user.perfs.blitz.rating, inline: true},
+                    {name:"**Classical**", value: user.perfs.classical.rating, inline: true},
+                    {name:"**Correspondence**", value: user.perfs.correspondence.rating, inline: true},
+                    {name:"**Puzzle**", value: user.perfs.puzzle.rating, inline: true},
+                    {name:"**All games**", value: user.count.all+" (win: "+user.count.win+", loss: "+user.count.loss+")", inline: true},
+                    {name:"**Time played**", value: playTime, inline: true}
+                )
+        
+            message.channel.send(embedPNG)
         });
     } else if (message.content.startsWith(prefix + 'lichessGames')) {
 
@@ -275,6 +326,29 @@ client.on('message', message => {
         args = message.content.split(" ");
         command = args[0]
         switch (command) {
+            case prefix + "botColor":{
+                if (args.length > 1) {
+                    botColorNum = args[1]
+                    for (let color in colorsEnum) {
+                        if(color == botColorNum){
+                            botColor = colorsEnum[color].value
+                        }
+                    }
+                    setTimeout(() => {
+                        const embedBoard = new Discord.MessageEmbed()
+                            .setColor(botColor)
+                            .setTitle('Board settings')
+                            .setURL(inviteLink)
+                            .addFields(
+                                { name: '\u200B', value: "Bot color changed to: **" + botColor + "**" }
+                            )
+                        message.channel.send(embedBoard);
+                    }, 200)
+                }else{
+
+                }
+                break
+            }
             case prefix + "bStyle": {
                 if (args.length > 1) {
                     newStyleNum = args[1]
@@ -318,14 +392,14 @@ client.on('message', message => {
             }
             case prefix + "bShow": {
                 imageGenerator.generatePNG(RESOURCES_URL + 'current.png')
-                for(let i=1; i<=14; i++){
-                    if(colorsEnum.get(''+i).value == imageGenerator.light){
-                        lightColorNum = colorsEnum.get(''+i).key
+                for (let color in colorsEnum) {
+                    if(colorsEnum[color].value == imageGenerator.light){
+                        lightColorNum = color
                     }
                 }
-                for(let i=1; i<=14; i++){
-                    if(colorsEnum.get(''+i).value == imageGenerator.dark){
-                        darkColorNum = colorsEnum.get(''+i).key
+                for (let color in colorsEnum) {
+                    if(colorsEnum[color].value == imageGenerator.dark){
+                        darkColorNum = color
                     }
                 }
                 setTimeout(() => {
@@ -335,9 +409,9 @@ client.on('message', message => {
                         .setURL(inviteLink)
                         .addFields(
                             { name: '\u200B', value: "**Current board settings:**" },
-                            { name: '\u200B', value: "**Light squares color:** " + lightColorNum + " (" + imageGenerator.light +")"},
-                            { name: '\u200B', value: "**Dark squares color:** " + darkColorNum+ " (" + imageGenerator.dark +")"},
-                            { name: '\u200B', value: "**Pieces style:** " + imageGenerator.style}
+                            { name: '\u200B', value: "**Light squares color:** " + lightColorNum + " (" + imageGenerator.light + ")" },
+                            { name: '\u200B', value: "**Dark squares color:** " + darkColorNum + " (" + imageGenerator.dark + ")" },
+                            { name: '\u200B', value: "**Pieces style:** " + imageGenerator.style }
                         )
                         .attachFiles(RESOURCES_URL + 'current.png')
                         .setImage("attachment://current.png")
@@ -349,7 +423,7 @@ client.on('message', message => {
             case prefix + "bLight": {
                 if (args.length > 1) {
                     newColorNum = args[1]
-                    imageGenerator.light = colorsEnum.get(''+newColorNum).value
+                    imageGenerator.light = colorsEnum.get('' + newColorNum).value
                     imageGenerator.generatePNG(RESOURCES_URL + 'current.png')
                     setTimeout(() => {
                         const embedBoard = new Discord.MessageEmbed()
@@ -365,9 +439,9 @@ client.on('message', message => {
                         message.channel.send(embedBoard);
                     }, 200)
                 } else {
-                    for(let i=1; i<=14; i++){
-                        if(colorsEnum.get(''+i).value == imageGenerator.light){
-                            colorNum = colorsEnum.get(''+i).key
+                    for (let color in colorsEnum) {
+                        if(colorsEnum[color].value == imageGenerator.light){
+                            lightColorNum = color
                         }
                     }
                     const embedBoard = new Discord.MessageEmbed()
@@ -375,7 +449,7 @@ client.on('message', message => {
                         .setTitle('Board settings')
                         .setURL(inviteLink)
                         .addFields(
-                            { name: '\u200B', value: "**Current light squares color:** " + colorNum }
+                            { name: '\u200B', value: "**Current light squares color:** " + lightColorNum }
                         )
                         .attachFiles(RESOURCES_URL + 'colors.png')
                         .setImage("attachment://colors.png")
@@ -403,9 +477,9 @@ client.on('message', message => {
                         message.channel.send(embedBoard);
                     }, 200)
                 } else {
-                    for(let i=1; i<=14; i++){
-                        if(colorsEnum.get(''+i).value == imageGenerator.dark){
-                            colorNum = colorsEnum.get(''+i).key
+                    for (let color in colorsEnum) {
+                        if(colorsEnum[color].value == imageGenerator.dark){
+                            darkColorNum = color
                         }
                     }
                     const embedBoard = new Discord.MessageEmbed()
@@ -413,7 +487,7 @@ client.on('message', message => {
                         .setTitle('Board settings')
                         .setURL(inviteLink)
                         .addFields(
-                            { name: '\u200B', value: "**Current dark squares color:** " + colorNum }
+                            { name: '\u200B', value: "**Current dark squares color:** " + darkColorNum }
                         )
                         .attachFiles(RESOURCES_URL + 'colors.png')
                         .setImage("attachment://colors.png")
@@ -449,12 +523,13 @@ client.on('message', message => {
             .setURL(inviteLink)
             .addFields(
                 { name: '\u200B', value: "**Available commands:**" },
-                { name: '\u200B', value: "**" + prefix + "prefix** *<newPrefix>* - changes prefix\n" },
+                { name: '\u200B', value: "**" + prefix + "prefix** *<newPrefix>* - changes prefix" },
+                { name: '\u200B', value: "**" + prefix + "botColor** *<newColor>* - changes bot color (1-14 or red, green, blue, orange)" },
                 { name: '\u200B', value: "**" + prefix + "lichess** *<username>* - stats of *username* on <https://lichess.org>" },
                 { name: '\u200B', value: "**" + prefix + "chess** *<username>* - stats of *username* on <https://chess.com>" },
                 { name: '\u200B', value: "**" + prefix + "lichessGame** *<id>* - returns info about game (opening, best move, etc..)" },
                 { name: '\u200B', value: "**" + prefix + "board** - list of board settings commands" },
-                { name: '\u200B', value: "**" + prefix + "help** - list of available commands" },
+                { name: '\u200B', value: "**" + prefix + "help** - list of available commands" }
             )
         message.channel.send(embedHelp);
     }
