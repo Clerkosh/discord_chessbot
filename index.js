@@ -313,9 +313,9 @@ client.on('message', message => {
             .addFields(
                 { name: '\u200B', value: "**Available board commands:**" },
                 { name: '\u200B', value: "**" + prefix + "bShow** - show current board settings" },
-                { name: '\u200B', value: "**" + prefix + "bStyle** *<newStyle>* - style of pieces on board, f.e merida" },
-                { name: '\u200B', value: "**" + prefix + "bLight** *<newColorOfLightSquares>* - color of light squares, f.e rgb(255,255,255) or #ffffff" },
-                { name: '\u200B', value: "**" + prefix + "bDark** *<newColorOfDarkSquares>* - color of dark squares, f.e rgb(0,0,0) or #000000" },
+                { name: '\u200B', value: "**" + prefix + "bStyle** *<newStyle>* - style of pieces on board, (1-5 or alpha, merida etc..." },
+                { name: '\u200B', value: "**" + prefix + "bLight** *<newColorOfLightSquares>* - color of light squares, (1-14 or red, green, blue, orange)" },
+                { name: '\u200B', value: "**" + prefix + "bDark** *<newColorOfDarkSquares>* - color of dark squares, (1-14 or red, green, blue, orange)" },
                 { name: '\u200B', value: "**" + prefix + "bDefault** - restores default settings" },
                 { name: '\u200B', value: "**" + prefix + "help** - list of available commands" },
             )
