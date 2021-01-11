@@ -329,13 +329,19 @@ client.on('message', message => {
             case prefix + "botColor":{
                 if (args.length > 1) {
                     botColorNum = args[1]
+                    isValid=false
                     for (let color in colorsEnum) {
                         if(color == botColorNum){
                             botColor = colorsEnum[color].value
+                        
+                          isValid=true
                         }
                     }
-                    setTimeout(() => {
-                        const embedBoard = new Discord.MessageEmbed()
+                    if(!isValid){
+                    if(Boolean(botColorNum.toString().match(/^#[0-9a-f]+$/i))) {
+                      botColor = botColorNum
+                      
+                      const embedBoard = new Discord.MessageEmbed()
                             .setColor(botColor)
                             .setTitle('BOT settings')
                             .setURL(inviteLink)
@@ -343,7 +349,26 @@ client.on('message', message => {
                                 { name: '\u200B', value: "BOT color changed to: **" + botColor + "**" }
                             )
                         message.channel.send(embedBoard);
-                    }, 200)
+                    } else {
+                      const embedBoard = new Discord.MessageEmbed()
+                            .setColor(botColor)
+                            .setTitle('BOT settings')
+                            .setURL(inviteLink)
+                            .addFields(
+                                { name: '\u200B', value: "Invalid BOT color. Use 1-14 or red, green, blue, orange or color in hex format, f.e #ff5500. " }
+                            )
+                        message.channel.send(embedBoard); 
+                    } 
+                    } else {
+                     const embedBoard = new Discord.MessageEmbed()
+                            .setColor(botColor)
+                            .setTitle('BOT settings')
+                            .setURL(inviteLink)
+                            .addFields(
+                                { name: '\u200B', value: "BOT color changed to: **" + botColor + "**" }
+                            )
+                        message.channel.send(embedBoard);
+                    } 
                 }else{
                   const embedBoard = new Discord.MessageEmbed()
                             .setColor(botColor)
