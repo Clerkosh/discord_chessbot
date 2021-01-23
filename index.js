@@ -701,6 +701,7 @@ client.on('message', message => {
                 { name: '\u200B', value: "**" + prefix + "chess** *<username>* - stats of *username* on <https://chess.com>" },
                 { name: '\u200B', value: "**" + prefix + "lichessGame** *<id>* - returns info about game (opening, best move, etc..)" },
                 { name: '\u200B', value: "**" + prefix + "board** - list of board settings commands" },
+                { name: '\u200B', value: "**" + prefix + "helpPuzzle** - list of puzzle settings commands" },
                 { name: '\u200B', value: "**" + prefix + "help** - list of available commands" }
             )
         message.channel.send(embedHelp);
