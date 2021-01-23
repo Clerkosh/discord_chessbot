@@ -253,7 +253,7 @@ client.on('message', message => {
             .then(function (response) {
                 if (response.body.hasOwnProperty('avatar')) {
                     avatar = response.body.avatar
-                }else avatar = 'https://betacssjs.chesscomfiles.com/bundles/web/images/noavatar_l.84a92436.gif'
+                } else avatar = 'https://betacssjs.chesscomfiles.com/bundles/web/images/noavatar_l.84a92436.gif'
                 if (response.body.hasOwnProperty('title'))
                     title = response.body.title
             })
@@ -336,17 +336,17 @@ client.on('message', message => {
                 .setThumbnail('https://images.prismic.io/lichess/5cfd2630-2a8f-4fa9-8f78-04c2d9f0e5fe_lichess-box-1024.png?auto=compress')
                 .setURL('https://lichess.org/@/' + username)
                 .addFields(
-                    {name:"**Rapid**", value: user.perfs.rapid.rating, inline: true},
-                    {name:"**Ultra Bullet**", value: user.perfs.ultraBullet.rating, inline: true},
-                    {name:"**Bullet**", value: user.perfs.bullet.rating, inline: true},
-                    {name:"**Blitz**", value: user.perfs.blitz.rating, inline: true},
-                    {name:"**Classical**", value: user.perfs.classical.rating, inline: true},
-                    {name:"**Correspondence**", value: user.perfs.correspondence.rating, inline: true},
-                    {name:"**Puzzle**", value: user.perfs.puzzle.rating, inline: true},
-                    {name:"**All games**", value: user.count.all+" (win: "+user.count.win+", loss: "+user.count.loss+")", inline: true},
-                    {name:"**Time played**", value: playTime, inline: true}
+                    { name: "**Rapid**", value: user.perfs.rapid.rating, inline: true },
+                    { name: "**Ultra Bullet**", value: user.perfs.ultraBullet.rating, inline: true },
+                    { name: "**Bullet**", value: user.perfs.bullet.rating, inline: true },
+                    { name: "**Blitz**", value: user.perfs.blitz.rating, inline: true },
+                    { name: "**Classical**", value: user.perfs.classical.rating, inline: true },
+                    { name: "**Correspondence**", value: user.perfs.correspondence.rating, inline: true },
+                    { name: "**Puzzle**", value: user.perfs.puzzle.rating, inline: true },
+                    { name: "**All games**", value: user.count.all + " (win: " + user.count.win + ", loss: " + user.count.loss + ")", inline: true },
+                    { name: "**Time played**", value: playTime, inline: true }
                 )
-        
+
             message.channel.send(embedPNG)
         });
     } else if (message.content.startsWith(prefix + 'lichessGame ')) {
@@ -475,12 +475,16 @@ client.on('message', message => {
         args = message.content.split(" ");
         command = args[0]
         switch (command) {
-            case prefix + "botColor":{
+            case prefix + "botColor": {
                 if (args.length > 1) {
                     botColorNum = args[1]
                     for (let color in colorsEnum) {
-                        if(color == botColorNum){
+                        if (color == botColorNum) {
                             botColor = colorsEnum[color].value
+                        } else {
+                            if (botColorNum.match("^#[A-Fa-f0-9]{6}$")) {
+                                botColor = botColorNum
+                            }
                         }
                     }
                     setTimeout(() => {
@@ -493,15 +497,15 @@ client.on('message', message => {
                             )
                         message.channel.send(embedBoard);
                     }, 200)
-                }else{
-                  const embedBoard = new Discord.MessageEmbed()
-                            .setColor(botColor)
-                            .setTitle('BOT settings')
-                            .setURL(inviteLink)
-                            .addFields(
-                                { name: '\u200B', value: "Current BOT color: **" + botColor + "**" }
-                            )
-                        message.channel.send(embedBoard);
+                } else {
+                    const embedBoard = new Discord.MessageEmbed()
+                        .setColor(botColor)
+                        .setTitle('BOT settings')
+                        .setURL(inviteLink)
+                        .addFields(
+                            { name: '\u200B', value: "Current BOT color: **" + botColor + "**" }
+                        )
+                    message.channel.send(embedBoard);
                 }
                 break
             }
@@ -549,12 +553,12 @@ client.on('message', message => {
             case prefix + "bShow": {
                 imageGenerator.generatePNG(RESOURCES_URL + 'current.png')
                 for (let color in colorsEnum) {
-                    if(colorsEnum[color].value == imageGenerator.light){
+                    if (colorsEnum[color].value == imageGenerator.light) {
                         lightColorNum = color
                     }
                 }
                 for (let color in colorsEnum) {
-                    if(colorsEnum[color].value == imageGenerator.dark){
+                    if (colorsEnum[color].value == imageGenerator.dark) {
                         darkColorNum = color
                     }
                 }
@@ -579,7 +583,16 @@ client.on('message', message => {
             case prefix + "bLight": {
                 if (args.length > 1) {
                     newColorNum = args[1]
-                    imageGenerator.light = colorsEnum.get('' + newColorNum).value
+                    for (let color in colorsEnum) {
+                        if (color == newColorNum) {
+                            newColor = colorsEnum[color].value
+                        } else{
+                            if(newColorNum.match("^#[A-Fa-f0-9]{6}$")){
+                                newColor = newColorNum
+                            }
+                        }
+                    }
+                    imageGenerator.light = newColor
                     imageGenerator.generatePNG(RESOURCES_URL + 'current.png')
                     setTimeout(() => {
                         const embedBoard = new Discord.MessageEmbed()
@@ -587,7 +600,7 @@ client.on('message', message => {
                             .setTitle('Board settings')
                             .setURL(inviteLink)
                             .addFields(
-                                { name: '\u200B', value: "**Color of light squares changed to: **" + newColorNum + " (" + imageGenerator.light + ")" }
+                                { name: '\u200B', value: "**Color of light squares changed to: **" + newColor + " (" + imageGenerator.light + ")" }
                             )
                             .attachFiles(RESOURCES_URL + 'current.png')
                             .setImage("attachment://current.png")
@@ -596,7 +609,7 @@ client.on('message', message => {
                     }, 200)
                 } else {
                     for (let color in colorsEnum) {
-                        if(colorsEnum[color].value == imageGenerator.light){
+                        if (colorsEnum[color].value == imageGenerator.light) {
                             lightColorNum = color
                         }
                     }
@@ -617,7 +630,16 @@ client.on('message', message => {
             case prefix + "bDark": {
                 if (args.length > 1) {
                     newColorNum = args[1]
-                    imageGenerator.dark = colorsEnum.get(newColorNum).value
+                    for (let color in colorsEnum) {
+                        if (color == newColorNum) {
+                            newColor = colorsEnum[color].value
+                        } else{
+                            if(newColorNum.match("^#[A-Fa-f0-9]{6}$")){
+                                newColor = newColorNum
+                            }
+                        }
+                    }
+                    imageGenerator.dark = newColor
                     imageGenerator.generatePNG(RESOURCES_URL + 'current.png')
                     setTimeout(() => {
                         const embedBoard = new Discord.MessageEmbed()
@@ -625,7 +647,7 @@ client.on('message', message => {
                             .setTitle('Board settings')
                             .setURL(inviteLink)
                             .addFields(
-                                { name: '\u200B', value: "**Color of dark squares changed to:** " + newColorNum + " (" + imageGenerator.dark + ")" }
+                                { name: '\u200B', value: "**Color of dark squares changed to:** " + newColor + " (" + imageGenerator.dark + ")" }
                             )
                             .attachFiles(RESOURCES_URL + 'current.png')
                             .setImage("attachment://current.png")
@@ -634,7 +656,7 @@ client.on('message', message => {
                     }, 200)
                 } else {
                     for (let color in colorsEnum) {
-                        if(colorsEnum[color].value == imageGenerator.dark){
+                        if (colorsEnum[color].value == imageGenerator.dark) {
                             darkColorNum = color
                         }
                     }
@@ -710,7 +732,7 @@ client.on('message', message => {
 
 const http = require('http');
 const server = http.createServer((req, res) => {
-  res.writeHead(200);
-  res.end('ok');
+    res.writeHead(200);
+    res.end('ok');
 });
 server.listen(3000);
