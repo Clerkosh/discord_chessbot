@@ -439,8 +439,9 @@ client.on('message', message => {
                 { name: '\u200B', value: "**" + prefix + "bStyle** *<newStyle>* - style of pieces on board, f.e merida" },
                 { name: '\u200B', value: "**" + prefix + "bLight** *<newColorOfLightSquares>* - color of light squares, f.e rgb(255,255,255) or #ffffff" },
                 { name: '\u200B', value: "**" + prefix + "bDark** *<newColorOfDarkSquares>* - color of dark squares, f.e rgb(0,0,0) or #000000" },
+                { name: '\u200B', value: "**" + prefix + "bSwap** - swap colors of tiles" },
                 { name: '\u200B', value: "**" + prefix + "bDefault** - restores default settings" },
-                { name: '\u200B', value: "**" + prefix + "help** - list of available commands" },
+                { name: '\u200B', value: "**" + prefix + "help** - list of available commands" }
             )
         message.channel.send(embedBoard);
     } else if (message.content.startsWith(prefix + 'bestMove')) {
@@ -672,6 +673,27 @@ client.on('message', message => {
 
                     message.channel.send(embedBoard);
                 }
+                break
+            }
+            case prefix + "bSwap": {
+                tmp = imageGenerator.light
+                imageGenerator.light = imageGenerator.dark
+                imageGenerator.dark = tmp
+                    imageGenerator.generatePNG(RESOURCES_URL + 'current.png')
+                    setTimeout(() => {
+                        const embedBoard = new Discord.MessageEmbed()
+                            .setColor(botColor)
+                            .setTitle('Colors swapped')
+                            .setURL(inviteLink)
+                            .addFields(
+                                { name: '\u200B', value: "**Current light squares color:** " + imageGenerator.light },
+                                { name: '\u200B', value: "**Current dark squares color:** " + imageGenerator.dark }
+                            )
+                            .attachFiles(RESOURCES_URL + 'current.png')
+                            .setImage("attachment://current.png")
+
+                        message.channel.send(embedBoard);
+                    }, 200)
                 break
             }
             case prefix + "bDefault": {
