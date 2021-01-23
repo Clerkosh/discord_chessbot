@@ -313,9 +313,9 @@ client.on('message', message => {
             .addFields(
                 { name: '\u200B', value: "**Available board commands:**" },
                 { name: '\u200B', value: "**" + prefix + "bShow** - show current board settings" },
-                { name: '\u200B', value: "**" + prefix + "bStyle** *<newStyle>* - style of pieces on board, f.e merida" },
-                { name: '\u200B', value: "**" + prefix + "bLight** *<newColorOfLightSquares>* - color of light squares, f.e rgb(255,255,255) or #ffffff" },
-                { name: '\u200B', value: "**" + prefix + "bDark** *<newColorOfDarkSquares>* - color of dark squares, f.e rgb(0,0,0) or #000000" },
+                { name: '\u200B', value: "**" + prefix + "bStyle** *<newStyle>* - style of pieces on board, (1-5 or alpha, merida etc..." },
+                { name: '\u200B', value: "**" + prefix + "bLight** *<newColorOfLightSquares>* - color of light squares, (1-14 or red, green, blue, orange)" },
+                { name: '\u200B', value: "**" + prefix + "bDark** *<newColorOfDarkSquares>* - color of dark squares, (1-14 or red, green, blue, orange)" },
                 { name: '\u200B', value: "**" + prefix + "bDefault** - restores default settings" },
                 { name: '\u200B', value: "**" + prefix + "help** - list of available commands" },
             )
@@ -329,13 +329,19 @@ client.on('message', message => {
             case prefix + "botColor":{
                 if (args.length > 1) {
                     botColorNum = args[1]
+                    isValid=false
                     for (let color in colorsEnum) {
                         if(color == botColorNum){
                             botColor = colorsEnum[color].value
+                        
+                          isValid=true
                         }
                     }
-                    setTimeout(() => {
-                        const embedBoard = new Discord.MessageEmbed()
+                    if(!isValid){
+                    if(Boolean(botColorNum.toString().match(/^#[0-9a-f]+$/i))) {
+                      botColor = botColorNum
+                      
+                      const embedBoard = new Discord.MessageEmbed()
                             .setColor(botColor)
                             .setTitle('BOT settings')
                             .setURL(inviteLink)
@@ -343,7 +349,26 @@ client.on('message', message => {
                                 { name: '\u200B', value: "BOT color changed to: **" + botColor + "**" }
                             )
                         message.channel.send(embedBoard);
-                    }, 200)
+                    } else {
+                      const embedBoard = new Discord.MessageEmbed()
+                            .setColor(botColor)
+                            .setTitle('BOT settings')
+                            .setURL(inviteLink)
+                            .addFields(
+                                { name: '\u200B', value: "Invalid BOT color. Use 1-14 or red, green, blue, orange or color in hex format, f.e #ff5500. " }
+                            )
+                        message.channel.send(embedBoard); 
+                    } 
+                    } else {
+                     const embedBoard = new Discord.MessageEmbed()
+                            .setColor(botColor)
+                            .setTitle('BOT settings')
+                            .setURL(inviteLink)
+                            .addFields(
+                                { name: '\u200B', value: "BOT color changed to: **" + botColor + "**" }
+                            )
+                        message.channel.send(embedBoard);
+                    } 
                 }else{
                   const embedBoard = new Discord.MessageEmbed()
                             .setColor(botColor)
