@@ -428,6 +428,9 @@ client.on('message', message => {
 
         }
 
+    } else if (message.content.startsWith(prefix + 'newPuzzle')) {
+        generatePuzzle(message)
+        isPuzzleActive = true
     } else if (message.content == (prefix + 'board')) {
         const embedBoard = new Discord.MessageEmbed()
             .setColor(botColor)
