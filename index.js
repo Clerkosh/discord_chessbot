@@ -16,6 +16,7 @@ const { Chess } = require('./chess.js')
 const chess = new Chess()
 const Engine = require('node-uci').Engine;
 const ChessImageGenerator = require('chess-image-generator');
+const Puzzle = require('./puzzle.js')
 const client = new Discord.Client();
 const inviteLink = process.env.INVITE_LINK
 const BASE_URL = config.BASE_URL
