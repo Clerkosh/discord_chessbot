@@ -355,7 +355,7 @@ client.on('message', message => {
         args = message.content.split(" ")
         gameId = args[1]
         lichess.game(gameId, { with_analysis: 1, with_moves: 1, with_opening: 1, with_fens: 1 }, function (err, game) {
-            if (err) throw err
+            if (err) console.log(err)
             if (game != "") {
 
                 gameJson = JSON.parse(game)
