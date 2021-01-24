@@ -138,7 +138,7 @@ function generatePuzzle(message) {
     }, 200)
     isPuzzleActive = true
 }
-client.login("Nzk2ODg0NzcwODE0MTY1MDAy.X_eaxg.aKl1qdRuh_UM2D3cEpGgfuMCDAE");
+client.login(CLIENT_TOKEN);
 client.on('ready', function (evt) {
     console.log('ready');
     chessAPI = new ChessWebAPI();
