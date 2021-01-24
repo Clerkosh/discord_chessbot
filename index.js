@@ -349,13 +349,12 @@ client.on('message', message => {
 
             message.channel.send(embedPNG)
         });
-    } else if (message.content.toLowerCase().startsWith(prefix + 'lichessGame ')) {
+    } else if (message.content.toLowerCase().startsWith(prefix + 'lichessgame ')) {
         chess.reset()
         args = message.content.split(" ")
         gameId = args[1]
         lichess.game(gameId, { with_analysis: 1, with_moves: 1, with_opening: 1, with_fens: 1 }, function (err, game) {
             if (err) throw err
-            //console.log(game);
             if (game != "") {
 
                 gameJson = JSON.parse(game)
@@ -378,7 +377,6 @@ client.on('message', message => {
                         if (gameJson.opening != undefined) {
                             openingName = gameJson.opening.name
                         }
-                        //console.log(result)
                         bestMove = convertUCItoSAN(result.bestmove, chess)
                         const embedPNG = new Discord.MessageEmbed()
                             .setColor(botColor)
@@ -386,7 +384,6 @@ client.on('message', message => {
                             .setURL('https://lichess.org/' + gameId)
                             .addFields(
                                 { name: 'Opening:', value: openingName },
-                                //{ name: '\u200B', value: '\u200B' },      // <br>
                                 { name: 'Moves', value: gameJson.moves },
                                 { name: 'Best move', value: bestMove },
                             )
@@ -428,7 +425,7 @@ client.on('message', message => {
 
         }
 
-    } else if (message.content.toLowerCase().startsWith(prefix + 'newPuzzle')) {
+    } else if (message.content.toLowerCase().startsWith(prefix + 'newpuzzle')) {
         generatePuzzle(message)
         isPuzzleActive = true
     } else if (message.content.toLowerCase().startsWith(prefix + 'board')) {
@@ -447,7 +444,7 @@ client.on('message', message => {
                 { name: '\u200B', value: "**" + prefix + "help** - list of available commands" }
             )
         message.channel.send(embedBoard);
-    } else if (message.content.toLowerCase().startsWith(prefix + 'bestMove')) {
+    } else if (message.content.toLowerCase().startsWith(prefix + 'bestmove')) {
         if (isPuzzleActive) {
             moves = puzzle.movesArr.split(" ")
             bestmove = ""
@@ -720,7 +717,7 @@ client.on('message', message => {
             }
         }
         chess.load(fen)
-    } else if (message.content.toLowerCase().startsWith(prefix + 'helpPuzzle')) {
+    } else if (message.content.toLowerCase().startsWith(prefix + 'helppuzzle')) {
         const embedHelp = new Discord.MessageEmbed()
             .setColor(botColor)
             .setTitle('BOT Lichess')
