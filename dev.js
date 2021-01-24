@@ -1,34 +1,35 @@
 //Discord BOT for Lichess -> invite link: https://discord.com/api/oauth2/authorize?client_id=796884770814165002&permissions=0&scope=bot
 /*TODO:
+- =answer MOVE IN FORMAT Nxe5 for example
 - zacząć grę blindfolded i dodać komendę showboard
 - grać na innych lub bota i wybierać poziom
 - dodać możliwość zmiany koloru kratek na dowolny? oprócz tych dodanych w enumie
 - naprawić funkcje convertUCItoSAN, bo jak 2 skoczki mogą wykonać ten sam ruch to funkcja nie precyzuje którym skoczkiem ruszyć(chess.move zwraca property .san może coś z tym)
 */
-const Discord = require('discord.js')
 const fs = require('fs')
-require('dotenv').config()
 const Enum = require('enum')
-const config = require("./config.json")
-const ChessWebAPI = require('chess-web-api')
-const lichess = require('lichess-api')
+const config = require("./config_dev.json")
+const Discord = require('discord.js');
+const ChessWebAPI = require('chess-web-api');
+const lichess = require('lichess-api');
 const { Chess } = require('./chess.js')
 const chess = new Chess()
-const Engine = require('node-uci').Engine
-const ChessImageGenerator = require('chess-image-generator')
+const Engine = require('node-uci').Engine;
+var ChessImageGenerator = require('chess-image-generator');
 const Puzzle = require('./puzzle.js')
-const client = new Discord.Client()
-const inviteLink = process.env.INVITE_LINK
+const client = new Discord.Client();
+const inviteLink = config.INVITE_LINK
+var botColor = config.BOT_COLOR
+const CLIENT_TOKEN = config.CLIENT_TOKEN
+var prefix = config.PREFIX
 const BASE_URL = config.BASE_URL
 const RESOURCES_URL = config.RESOURCES_URL
 const STOCKFISH = config.STOCKFISH
-var prefix = config.PREFIX
-var botColor = config.BOT_COLOR
 var imageGenerator
-var puzzles = []
-var isPuzzleActive = false
-var startIndex = 1
-var puzzle = null
+var puzzles = [];
+var isPuzzleActive = false;
+var startIndex = 1;
+var puzzle = null;
 
 colorsEnum = new Enum({
     1: "#D6D6D6",
@@ -50,6 +51,11 @@ colorsEnum = new Enum({
     "green": "#00ff00",
     "orange": "#ff9900"
 })
+function getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min)) + min;
+}
 function convertUCItoSAN(move, chess) {
     square = move.substr(0, 2)
     square2 = move.substr(2, 2)
@@ -89,11 +95,6 @@ function convertUCItoSAN(move, chess) {
         }
     }
     return move
-}
-function getRandomInt(min, max) {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min)) + min;
 }
 async function generatePNG() {
     await imageGenerator.generatePNG(RESOURCES_URL + 'default.png')
@@ -137,7 +138,7 @@ function generatePuzzle(message) {
     }, 200)
     isPuzzleActive = true
 }
-client.login();
+client.login("Nzk2ODg0NzcwODE0MTY1MDAy.X_eaxg.C3HaxE03TQvEyalgkiPis4u4cmk");
 client.on('ready', function (evt) {
     console.log('ready');
     chessAPI = new ChessWebAPI();
@@ -172,68 +173,7 @@ client.on('message', message => {
                 { name: '\u2800', value: "Prefix changed to `" + prefix + "`" }
             )
         message.channel.send(embedPrefix)
-    } else if (message.content.toLowerCase().startsWith(prefix + 'answer')) {
-        if (isPuzzleActive) {
-            args = message.content.split(" ")
-            move = args[1]
-            puzzleMoves = puzzle.movesArr.split(" ")
-
-            if (puzzleMoves[startIndex].includes(move)) {
-
-                chess.move(puzzleMoves[startIndex], { sloppy: true })
-                if (startIndex < puzzleMoves.length - 1) {
-                    startIndex++
-                    chess.move(puzzleMoves[startIndex], { sloppy: true })
-                    imageGenerator.loadFEN(chess.fen())
-                    imageGenerator.generatePNG(RESOURCES_URL + 'puzzle-' + puzzle.id + '.png')
-                    setTimeout(() => {
-                        const embedPuzzle = new Discord.MessageEmbed()
-                            .setColor(botColor)
-                            .setTitle("Correct!")
-                            .setURL(puzzle.gameUrl)
-                            .addFields(
-
-                                { name: '\u200B', value: "Opponent moved `" + puzzleMoves[startIndex] + "`" },
-                                { name: '\u200B', value: "What's your next move? Answer with: `" + prefix + "answer`" }
-                            )
-                            .attachFiles(RESOURCES_URL + 'puzzle-' + puzzle.id + '.png')
-                            .setImage("attachment://puzzle-" + puzzle.id + ".png")
-                        message.channel.send(embedPuzzle);
-                        startIndex++
-                    }, 200)
-                } else {
-                    isPuzzleActive = false
-                    const embedPuzzle = new Discord.MessageEmbed()
-                        .setColor(botColor)
-                        .setTitle("You solved the puzzle! Congratz!")
-                        .setURL(puzzle.gameUrl)
-                        .addFields(
-                            { name: '\u200B', value: "Generate new puzzle using: `" + prefix + "puzzle`" }
-                        )
-                    message.channel.send(embedPuzzle);
-                }
-            } else {
-                const embedPuzzle = new Discord.MessageEmbed()
-                    .setColor(botColor)
-                    .setTitle("Wrong answer!")
-                    .setURL(puzzle.gameUrl)
-                    .addFields(
-                        { name: '\u200B', value: "Try again using: `" + prefix + "answer` or get best move using: `" + prefix + "bestMove`" },
-                        { name: '\u200B', value: "Generate new puzzle using: `" + prefix + "newPuzzle`" }
-                    )
-                message.channel.send(embedPuzzle);
-            }
-        } else {
-            const embedPuzzle = new Discord.MessageEmbed()
-                .setColor(botColor)
-                .setTitle("No puzzles are active!")
-                .setURL(inviteLink)
-                .addFields(
-                    { name: '\u200B', value: "Generate new puzzle using: `" + prefix + "puzzle`" }
-                )
-            message.channel.send(embedPuzzle);
-        }
-    } else if (message.content.toLowerCase().startsWith(prefix + 'chess')) {
+    } else if (message.content.startsWith(prefix + 'chess')) {
         args = message.content.split(" ")
         username = args[1]
         avatar = ''
@@ -311,7 +251,7 @@ client.on('message', message => {
             console.error(err);
             message.channel.send(err.message);
         });
-    } else if (message.content.toLowerCase().startsWith(prefix + 'lichess ')) {
+    } else if (message.content.startsWith(prefix + 'lichess ')) {
         String.prototype.minsToHHMMSS = function () {
             var minsNum = parseFloat(this / 60, 10);
             var days = Math.floor(minsNum / (60 * 24));
@@ -349,13 +289,84 @@ client.on('message', message => {
 
             message.channel.send(embedPNG)
         });
-    } else if (message.content.toLowerCase().startsWith(prefix + 'lichessGame ')) {
+    } else if (message.content.startsWith(prefix + 'lichessGames')) {
+
+        args = message.content.split(" ")
+        username = args[1]
+        lichess.user.games(username, function (err, games) {
+            console.log(games);
+            // message.channel.send(games);
+        });
+    } else if (message.content.startsWith(prefix + 'newPuzzle')) {
+        generatePuzzle(message)
+        isPuzzleActive = true
+    } else if (message.content.startsWith(prefix + 'answer')) {
+        if (isPuzzleActive) {
+            args = message.content.split(" ")
+            move = args[1]
+            puzzleMoves = puzzle.movesArr.split(" ")
+
+            if (puzzleMoves[startIndex].includes(move)) {
+
+                chess.move(puzzleMoves[startIndex], { sloppy: true })
+                if (startIndex < puzzleMoves.length - 1) {
+                    startIndex++
+                    chess.move(puzzleMoves[startIndex], { sloppy: true })
+                    imageGenerator.loadFEN(chess.fen())
+                    imageGenerator.generatePNG(RESOURCES_URL + 'puzzle-' + puzzle.id + '.png')
+                    setTimeout(() => {
+                        const embedPuzzle = new Discord.MessageEmbed()
+                            .setColor(botColor)
+                            .setTitle("Correct!")
+                            .setURL(puzzle.gameUrl)
+                            .addFields(
+
+                                { name: '\u200B', value: "Opponent moved `" + puzzleMoves[startIndex] + "`" },
+                                { name: '\u200B', value: "What's your next move? Answer with: `" + prefix + "answer`" }
+                            )
+                            .attachFiles(RESOURCES_URL + 'puzzle-' + puzzle.id + '.png')
+                            .setImage("attachment://puzzle-" + puzzle.id + ".png")
+                        message.channel.send(embedPuzzle);
+                        startIndex++
+                    }, 200)
+                } else {
+                    isPuzzleActive = false
+                    const embedPuzzle = new Discord.MessageEmbed()
+                        .setColor(botColor)
+                        .setTitle("You solved the puzzle! Congratz!")
+                        .setURL(puzzle.gameUrl)
+                        .addFields(
+                            { name: '\u200B', value: "Generate new puzzle using: `" + prefix + "puzzle`" }
+                        )
+                    message.channel.send(embedPuzzle);
+                }
+            } else {
+                const embedPuzzle = new Discord.MessageEmbed()
+                    .setColor(botColor)
+                    .setTitle("Wrong answer!")
+                    .setURL(puzzle.gameUrl)
+                    .addFields(
+                        { name: '\u200B', value: "Try again using: `" + prefix + "answer` or get best move using: `" + prefix + "bestMove`" },
+                        { name: '\u200B', value: "Generate new puzzle using: `" + prefix + "newPuzzle`" }
+                    )
+                message.channel.send(embedPuzzle);
+            }
+        } else {
+            const embedPuzzle = new Discord.MessageEmbed()
+                .setColor(botColor)
+                .setTitle("No puzzles are active!")
+                .setURL(inviteLink)
+                .addFields(
+                    { name: '\u200B', value: "Generate new puzzle using: `" + prefix + "puzzle`" }
+                )
+            message.channel.send(embedPuzzle);
+        }
+    } else if (message.content.startsWith(prefix + 'lichessGame ')) {
         chess.reset()
         args = message.content.split(" ")
         gameId = args[1]
         lichess.game(gameId, { with_analysis: 1, with_moves: 1, with_opening: 1, with_fens: 1 }, function (err, game) {
             if (err) throw err
-            //console.log(game);
             if (game != "") {
 
                 gameJson = JSON.parse(game)
@@ -398,7 +409,7 @@ client.on('message', message => {
 
             }
         });
-    } else if (message.content.toLowerCase().startsWith(prefix + 'puzzle')) {
+    } else if (message.content.startsWith(prefix + 'puzzle')) {
         if (!isPuzzleActive) {
             generatePuzzle(message)
         } else { // puzzle is already active
@@ -408,30 +419,23 @@ client.on('message', message => {
             } else {
                 embedMessage = "Find a move for black! (puzzle id: " + puzzle.id + ")"
             }
-            imageGenerator.loadFEN(chess.fen())
-            imageGenerator.generatePNG(RESOURCES_URL + 'puzzle-' + puzzle.id + '.png')
-            setTimeout(() => {
-                const embedPuzzle = new Discord.MessageEmbed()
-                    .setColor(botColor)
-                    .setTitle(embedMessage)
-                    .setURL(puzzle.gameUrl)
-                    .addFields(
-                        { name: '\u200B', value: "Rating: **" + puzzle.rating + "**", inline: true },
-                        { name: '\u200B', value: "Themes: ||" + puzzle.themes + "||", inline: true },
-                        { name: '\u200B', value: "Answer puzzle using: `" + prefix + "answer` or get best move using: `" + prefix + "bestMove`" },
-                        { name: '\u200B', value: "Generate new puzzle using: `" + prefix + "newPuzzle`" }
-                    )
-                    .attachFiles(RESOURCES_URL + 'puzzle-' + puzzle.id + '.png')
-                    .setImage("attachment://puzzle-" + puzzle.id + ".png")
-                message.channel.send(embedPuzzle);
-            }, 200)
-
+            
+            const embedPuzzle = new Discord.MessageEmbed()
+                .setColor(botColor)
+                .setTitle(embedMessage)
+                .setURL(puzzle.gameUrl)
+                .addFields(
+                    { name: '\u200B', value: "Rating: **" + puzzle.rating + "**", inline: true },
+                    { name: '\u200B', value: "Themes: **" + puzzle.themes + "**", inline: true },
+                    { name: '\u200B', value: "Answer puzzle using: `" + prefix + "answer` or get best move using: `" + prefix + "bestMove`" },
+                    { name: '\u200B', value: "Generate new puzzle using: `" + prefix + "newPuzzle`" }
+                )
+                .attachFiles(RESOURCES_URL + 'puzzle-' + puzzle.id + '.png')
+                .setImage("attachment://puzzle-" + puzzle.id + ".png")
+            message.channel.send(embedPuzzle);
         }
 
-    } else if (message.content.toLowerCase().startsWith(prefix + 'newPuzzle')) {
-        generatePuzzle(message)
-        isPuzzleActive = true
-    } else if (message.content.toLowerCase().startsWith(prefix + 'board')) {
+    } else if (message.content == (prefix + 'board')) {
         const embedBoard = new Discord.MessageEmbed()
             .setColor(botColor)
             .setTitle('Board settings')
@@ -442,12 +446,11 @@ client.on('message', message => {
                 { name: '\u200B', value: "**" + prefix + "bStyle** *<newStyle>* - style of pieces on board, f.e merida" },
                 { name: '\u200B', value: "**" + prefix + "bLight** *<newColorOfLightSquares>* - color of light squares, f.e rgb(255,255,255) or #ffffff" },
                 { name: '\u200B', value: "**" + prefix + "bDark** *<newColorOfDarkSquares>* - color of dark squares, f.e rgb(0,0,0) or #000000" },
-                { name: '\u200B', value: "**" + prefix + "bSwap** - swap colors of tiles" },
                 { name: '\u200B', value: "**" + prefix + "bDefault** - restores default settings" },
-                { name: '\u200B', value: "**" + prefix + "help** - list of available commands" }
+                { name: '\u200B', value: "**" + prefix + "help** - list of available commands" },
             )
         message.channel.send(embedBoard);
-    } else if (message.content.toLowerCase().startsWith(prefix + 'bestMove')) {
+    } else if (message.content.startsWith(prefix + 'bestMove')) {
         if (isPuzzleActive) {
             moves = puzzle.movesArr.split(" ")
             bestmove = ""
@@ -472,7 +475,7 @@ client.on('message', message => {
                 )
             message.channel.send(embedPuzzle);
         }
-    } else if (message.content.toLowerCase().startsWith(prefix + 'b')) {
+    } else if (message.content.startsWith(prefix + 'b')) {
         var fen = chess.fen()
         chess.reset()
         imageGenerator.loadFEN(chess.fen())
@@ -485,31 +488,20 @@ client.on('message', message => {
                     for (let color in colorsEnum) {
                         if (color == botColorNum) {
                             botColor = colorsEnum[color].value
-                        } else {
-                            if (botColorNum.match("^#[A-Fa-f0-9]{6}$")) {
-                                botColor = botColorNum
-                            }
                         }
                     }
                     setTimeout(() => {
                         const embedBoard = new Discord.MessageEmbed()
                             .setColor(botColor)
-                            .setTitle('BOT settings')
+                            .setTitle('Board settings')
                             .setURL(inviteLink)
                             .addFields(
-                                { name: '\u200B', value: "BOT color changed to: **" + botColor + "**" }
+                                { name: '\u200B', value: "Bot color changed to: **" + botColor + "**" }
                             )
                         message.channel.send(embedBoard);
                     }, 200)
                 } else {
-                    const embedBoard = new Discord.MessageEmbed()
-                        .setColor(botColor)
-                        .setTitle('BOT settings')
-                        .setURL(inviteLink)
-                        .addFields(
-                            { name: '\u200B', value: "Current BOT color: **" + botColor + "**" }
-                        )
-                    message.channel.send(embedBoard);
+
                 }
                 break
             }
@@ -587,16 +579,7 @@ client.on('message', message => {
             case prefix + "bLight": {
                 if (args.length > 1) {
                     newColorNum = args[1]
-                    for (let color in colorsEnum) {
-                        if (color == newColorNum) {
-                            newColor = colorsEnum[color].value
-                        } else{
-                            if(newColorNum.match("^#[A-Fa-f0-9]{6}$")){
-                                newColor = newColorNum
-                            }
-                        }
-                    }
-                    imageGenerator.light = newColor
+                    imageGenerator.light = colorsEnum.get('' + newColorNum).value
                     imageGenerator.generatePNG(RESOURCES_URL + 'current.png')
                     setTimeout(() => {
                         const embedBoard = new Discord.MessageEmbed()
@@ -604,7 +587,7 @@ client.on('message', message => {
                             .setTitle('Board settings')
                             .setURL(inviteLink)
                             .addFields(
-                                { name: '\u200B', value: "**Color of light squares changed to: **" + newColor + " (" + imageGenerator.light + ")" }
+                                { name: '\u200B', value: "**Color of light squares changed to: **" + newColorNum + " (" + imageGenerator.light + ")" }
                             )
                             .attachFiles(RESOURCES_URL + 'current.png')
                             .setImage("attachment://current.png")
@@ -634,16 +617,7 @@ client.on('message', message => {
             case prefix + "bDark": {
                 if (args.length > 1) {
                     newColorNum = args[1]
-                    for (let color in colorsEnum) {
-                        if (color == newColorNum) {
-                            newColor = colorsEnum[color].value
-                        } else{
-                            if(newColorNum.match("^#[A-Fa-f0-9]{6}$")){
-                                newColor = newColorNum
-                            }
-                        }
-                    }
-                    imageGenerator.dark = newColor
+                    imageGenerator.dark = colorsEnum.get(newColorNum).value
                     imageGenerator.generatePNG(RESOURCES_URL + 'current.png')
                     setTimeout(() => {
                         const embedBoard = new Discord.MessageEmbed()
@@ -651,7 +625,7 @@ client.on('message', message => {
                             .setTitle('Board settings')
                             .setURL(inviteLink)
                             .addFields(
-                                { name: '\u200B', value: "**Color of dark squares changed to:** " + newColor + " (" + imageGenerator.dark + ")" }
+                                { name: '\u200B', value: "**Color of dark squares changed to:** " + newColorNum + " (" + imageGenerator.dark + ")" }
                             )
                             .attachFiles(RESOURCES_URL + 'current.png')
                             .setImage("attachment://current.png")
@@ -678,27 +652,6 @@ client.on('message', message => {
                 }
                 break
             }
-            case prefix + "bSwap": {
-                tmp = imageGenerator.light
-                imageGenerator.light = imageGenerator.dark
-                imageGenerator.dark = tmp
-                    imageGenerator.generatePNG(RESOURCES_URL + 'current.png')
-                    setTimeout(() => {
-                        const embedBoard = new Discord.MessageEmbed()
-                            .setColor(botColor)
-                            .setTitle('Colors swapped')
-                            .setURL(inviteLink)
-                            .addFields(
-                                { name: '\u200B', value: "**Current light squares color:** " + imageGenerator.light },
-                                { name: '\u200B', value: "**Current dark squares color:** " + imageGenerator.dark }
-                            )
-                            .attachFiles(RESOURCES_URL + 'current.png')
-                            .setImage("attachment://current.png")
-
-                        message.channel.send(embedBoard);
-                    }, 200)
-                break
-            }
             case prefix + "bDefault": {
                 setBoardDefault()
                 generatePNG()
@@ -720,7 +673,7 @@ client.on('message', message => {
             }
         }
         chess.load(fen)
-    } else if (message.content.toLowerCase().startsWith(prefix + 'helpPuzzle')) {
+    } else if (message.content.startsWith(prefix + 'helpPuzzle')) {
         const embedHelp = new Discord.MessageEmbed()
             .setColor(botColor)
             .setTitle('BOT Lichess')
@@ -735,7 +688,7 @@ client.on('message', message => {
                 { name: '\u200B', value: "**" + prefix + "help** - list of available commands" }
             )
         message.channel.send(embedHelp);
-    } else if (message.content.toLowerCase().startsWith(prefix + 'help')) {
+    } else if (message.content.startsWith(prefix + 'help')) {
         const embedHelp = new Discord.MessageEmbed()
             .setColor(botColor)
             .setTitle('BOT Lichess')
@@ -748,16 +701,9 @@ client.on('message', message => {
                 { name: '\u200B', value: "**" + prefix + "chess** *<username>* - stats of *username* on <https://chess.com>" },
                 { name: '\u200B', value: "**" + prefix + "lichessGame** *<id>* - returns info about game (opening, best move, etc..)" },
                 { name: '\u200B', value: "**" + prefix + "board** - list of board settings commands" },
-                { name: '\u200B', value: "**" + prefix + "helpPuzzle** - list of puzzle settings commands" },
+                { name: '\u200B', value: "**" + prefix + "helpPuzzle** - list of board settings commands" },
                 { name: '\u200B', value: "**" + prefix + "help** - list of available commands" }
             )
         message.channel.send(embedHelp);
     }
 });
-
-const http = require('http');
-const server = http.createServer((req, res) => {
-    res.writeHead(200);
-    res.end('ok');
-});
-server.listen(3000);

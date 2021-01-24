@@ -1,0 +1,9 @@
+{
+	"PREFIX": "=",
+    "CLIENT_TOKEN": "Nzk2ODg0NzcwODE0MTY1MDAy.X_eaxg.C3HaxE03TQvEyalgkiPis4u4cmk",
+    "BASE_URL": "D:\\boty\\Bot Lichess\\",
+    "RESOURCES_URL": "D:\\boty\\Bot Lichess\\resources\\",
+    "BOT_COLOR" : "#0099ff",
+    "INVITE_LINK" : "https://discord.com/api/oauth2/authorize?client_id=796884770814165002&permissions=0&scope=bot",
+    "STOCKFISH" : "D:\\boty\\Bot Lichess\\resources\\stockfish.exe"
+}
