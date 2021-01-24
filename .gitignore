@@ -73,6 +73,10 @@ web_modules/
 .env
 .env.test
 
+#config
+config_dev.json
+
+
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 .parcel-cache
@@ -80,9 +84,6 @@ web_modules/
 # Next.js build output
 .next
 out
-
-#config
-config_dev.json
 
 # Nuxt.js build / generate output
 .nuxt
