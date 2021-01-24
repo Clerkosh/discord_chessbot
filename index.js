@@ -350,6 +350,7 @@ client.on('message', message => {
             message.channel.send(embedPNG)
         });
     } else if (message.content.toLowerCase().startsWith(prefix + 'lichessgame ')) {
+        var fen = chess.fen()
         chess.reset()
         args = message.content.split(" ")
         gameId = args[1]
@@ -374,6 +375,7 @@ client.on('message', message => {
                     .go({ depth: 15 })
                     .then(result => {
                         openingName = "??"
+                        bestMove="??"
                         if (gameJson.opening != undefined) {
                             openingName = gameJson.opening.name
                         }
@@ -395,6 +397,7 @@ client.on('message', message => {
 
             }
         });
+        chess.load(fen)
     } else if (message.content.toLowerCase().startsWith(prefix + 'puzzle')) {
         if (!isPuzzleActive) {
             generatePuzzle(message)

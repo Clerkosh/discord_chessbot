@@ -386,6 +386,7 @@ client.on('message', message => {
                     .go({ depth: 15 })
                     .then(result => {
                         openingName = "??"
+                        bestMove="??"
                         if (gameJson.opening != undefined) {
                             openingName = gameJson.opening.name
                         }
